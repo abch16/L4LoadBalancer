@@ -10,23 +10,23 @@ import com.testorg.healthcheck.SimpleHealthChecker;
  * This is the core orchestrator for the 1999 scale-up load balancing solution.
  * Implements a production-ready Layer 4 load balancer with the following capabilities:
  *
- * 🎯 Core Requirements (1999 Scale-up Scenario):
- * - Accept traffic from many clients ✅
- * - Balance traffic across multiple backend services ✅
- * - Remove services from operation if they go offline ✅
+ *  Core Requirements (1999 Scale-up Scenario):
+ * - Accept traffic from many clients
+ * - Balance traffic across multiple backend services
+ * - Remove services from operation if they go offline
  *
- * 🏗️ Architecture Highlights:
+ *  Architecture Highlights:
  * - SOLID Principles: Clean separation of concerns with dependency injection
  * - Strategy Pattern: Pluggable load balancing algorithms (Round Robin, Random, etc.)
  * - Health Monitoring: Automatic 5-second health checks with graceful failover
  * - Dual State Management: Separates administrative availability from health status
  *
- * 💡 Design Decisions:
+ *  Design Decisions:
  * - Health checking is mandatory (not optional) for production reliability
  * - Background health monitoring prevents blocking request distribution
  * - Strategy pattern allows runtime algorithm switching without downtime
  *
- * 🚀 Usage Flow:
+ *  Usage Flow:
  * 1. Create load balancer (health checking included by default)
  * 2. Add backend servers
  * 3. Start health checking
@@ -84,19 +84,19 @@ public class L4LoadBalancer implements LoadBalancer {
      *
      * This is where the magic happens! The main entry point for all client requests.
      *
-     * 🎯 Algorithm:
+     *  Algorithm:
      * 1. Check if any servers are available (both healthy AND administratively available)
      * 2. If no servers available, gracefully reject request with appropriate message
      * 3. Use pluggable strategy to select best server from available pool
      * 4. Forward request to selected server
      *
-     * 💡 Key Design Decisions:
+     *  Key Design Decisions:
      * - Fail-fast: Immediate rejection if no servers available (don't queue/retry)
      * - Strategy Pattern: Algorithm selection is decoupled from request handling
      * - Dual State Filtering: Only servers that are BOTH available AND healthy can serve
      * - Graceful Degradation: System continues operating with partial server failures
      *
-     * 🚀 Performance Characteristics:
+     * Performance Characteristics:
      * - O(1) availability check (ServerManager handles filtering efficiently)
      * - O(n) strategy selection (where n = number of healthy servers)
      * - Non-blocking: Health checks run in background, don't delay requests

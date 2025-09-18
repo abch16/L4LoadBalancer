@@ -3,23 +3,23 @@ package com.testorg.server;
 /**
  * Server - Backend Server Implementation
  *
- * 🎯 Purpose: Represents individual backend servers in the 1999 scale-up architecture
+ *  Purpose: Represents individual backend servers in the 1999 scale-up architecture
  *
  * This class implements the crucial concept of DUAL STATE MANAGEMENT:
  *
- * 🔧 Administrative Availability (isAvailable):
+ * Administrative Availability (isAvailable):
  * - Manual control by operations team
  * - Used for planned maintenance, deployments, capacity management
  * - Set via setAvailable(true/false)
  * - Example: "Take Server-2 out of rotation for OS patching"
  *
- * 💓 Health Status (isHealthy):
+ *  Health Status (isHealthy):
  * - Automatic monitoring by HealthCheckManager
  * - Reflects actual server responsiveness and functionality
  * - Updated by health check system every 5 seconds
  * - Example: "Server-3 stopped responding to health checks"
  *
- * 🎯 Key Rule: A server must be BOTH available AND healthy to receive requests
+ *  Key Rule: A server must be BOTH available AND healthy to receive requests
  *
  * 💡 Why Separate These States?
  * - Administrative Control: Ops can manually manage servers
@@ -27,7 +27,7 @@ package com.testorg.server;
  * - Clear Responsibility: Manual vs automatic state management
  * - Operational Clarity: "Is it down by design or by accident?"
  *
- * 🚀 Request Handling Logic:
+ *  Request Handling Logic:
  * - Available + Healthy = Handle requests normally
  * - Unavailable + Healthy = "Server is administratively down"
  * - Available + Unhealthy = "Server failed health check"
