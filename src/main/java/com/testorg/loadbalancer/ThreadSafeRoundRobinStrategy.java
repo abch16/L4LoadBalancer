@@ -51,10 +51,4 @@ public class ThreadSafeRoundRobinStrategy implements LoadBalancingStrategy {
         System.out.println("[" + Thread.currentThread().getName() + "] ThreadSafeRoundRobin: reset currentIndex to 0");
     }
 
-    /**
-     * Get current index value (for testing/debugging)
-     */
-    public int getCurrentIndex() {
-        return currentIndex.get();
-    }
 }

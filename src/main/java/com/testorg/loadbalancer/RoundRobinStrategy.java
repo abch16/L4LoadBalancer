@@ -7,9 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * RoundRobinStrategy - THREAD-UNSAFE Implementation (Intentionally Broken!)
  *
- * 🚨 WARNING: This implementation has CRITICAL RACE CONDITIONS!
  *
- * 🐛 Threading Issues:
+ *  Threading Issues:
  * - currentIndex is not thread-safe (no synchronization)
  * - Multiple threads can read/modify/write simultaneously
  * - Lost updates cause incorrect server selection
@@ -21,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 3. Potential ArrayIndexOutOfBoundsException
  * 4. Non-deterministic behavior across runs
  *
- * 💡 This is intentionally broken to demonstrate why thread safety matters!
+ *  This is intentionally broken to demonstrate why thread safety matters!
  */
 public class RoundRobinStrategy implements LoadBalancingStrategy {
     //  RACE CONDITION: This field is accessed by multiple threads without synchronization!
