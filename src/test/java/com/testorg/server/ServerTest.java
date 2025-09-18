@@ -1,54 +1,52 @@
 package com.testorg.server;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 
 import static org.junit.Assert.*;
 
 public class ServerTest {
 
     private Server server;
-    private ByteArrayOutputStream outputStream;
-    private PrintStream originalOut;
 
     @Before
     public void setUp() {
         server = new Server("TestServer");
-
-        // Capture System.out for testing
-        outputStream = new ByteArrayOutputStream();
-        originalOut = System.out;
-        System.setOut(new PrintStream(outputStream));
-    }
-
-    @After
-    public void tearDown() {
-        // Restore original System.out
-        System.setOut(originalOut);
     }
 
     @Test
     public void testServerInitialization() {
         assertEquals("Server name should be set correctly", "TestServer", server.getName());
         assertTrue("Server should be available by default", server.isAvailable());
+        assertTrue("Server should be healthy by default", server.isHealthy());
     }
-
 
     @Test
     public void testHandleRequestWhenAvailable() {
         server.setAvailable(true);
-        server.handleRequest("Test Request");
+        server.setHealthy(true);
 
-        String output = outputStream.toString();
-        assertTrue("Should contain request text", output.contains("Test Request"));
-        assertTrue("Should contain server name", output.contains("TestServer"));
-        assertTrue("Should indicate request handled", output.contains("handled by server"));
+        boolean result = server.handleRequest("Test Request");
+        assertTrue("Should handle request when available and healthy", result);
     }
 
+    @Test
+    public void testHandleRequestWhenUnavailable() {
+        server.setAvailable(false);
+        server.setHealthy(true);
+
+        boolean result = server.handleRequest("Test Request");
+        assertFalse("Should not handle request when unavailable", result);
+    }
+
+    @Test
+    public void testHandleRequestWhenUnhealthy() {
+        server.setAvailable(true);
+        server.setHealthy(false);
+
+        boolean result = server.handleRequest("Test Request");
+        assertFalse("Should not handle request when unhealthy", result);
+    }
 
     @Test
     public void testGetName() {
@@ -59,51 +57,81 @@ public class ServerTest {
     @Test
     public void testMultipleRequests() {
         server.setAvailable(true);
+        server.setHealthy(true);
 
-        server.handleRequest("Request 1");
-        server.handleRequest("Request 2");
-        server.handleRequest("Request 3");
+        boolean result1 = server.handleRequest("Request 1");
+        boolean result2 = server.handleRequest("Request 2");
+        boolean result3 = server.handleRequest("Request 3");
 
-        String output = outputStream.toString();
-
-        // Count occurrences of each request
-        assertTrue("Should handle Request 1", output.contains("Request 1"));
-        assertTrue("Should handle Request 2", output.contains("Request 2"));
-        assertTrue("Should handle Request 3", output.contains("Request 3"));
-
-        // Should have 3 instances of "handled by server"
-        int handledCount = countOccurrences(output, "handled by server");
-        assertEquals("Should handle all 3 requests", 3, handledCount);
+        assertTrue("Should handle Request 1", result1);
+        assertTrue("Should handle Request 2", result2);
+        assertTrue("Should handle Request 3", result3);
     }
-
 
     @Test
     public void testEmptyRequestString() {
         server.setAvailable(true);
-        server.handleRequest("");
+        server.setHealthy(true);
 
-        String output = outputStream.toString();
-        assertTrue("Should handle empty request", output.contains("handled by server"));
-        assertTrue("Should contain server name", output.contains("TestServer"));
+        boolean result = server.handleRequest("");
+        assertTrue("Should handle empty request", result);
     }
 
     @Test
     public void testNullRequestString() {
         server.setAvailable(true);
-        server.handleRequest(null);
+        server.setHealthy(true);
 
-        String output = outputStream.toString();
-        assertTrue("Should handle null request", output.contains("handled by server"));
-        assertTrue("Should contain server name", output.contains("TestServer"));
+        boolean result = server.handleRequest(null);
+        assertTrue("Should handle null request", result);
     }
 
-    private int countOccurrences(String text, String substring) {
-        int count = 0;
-        int index = 0;
-        while ((index = text.indexOf(substring, index)) != -1) {
-            count++;
-            index += substring.length();
-        }
-        return count;
+    @Test
+    public void testAvailabilityControl() {
+        // Test availability toggle
+        assertTrue("Should start available", server.isAvailable());
+
+        server.setAvailable(false);
+        assertFalse("Should be unavailable after setting to false", server.isAvailable());
+
+        server.setAvailable(true);
+        assertTrue("Should be available after setting to true", server.isAvailable());
+    }
+
+    @Test
+    public void testHealthControl() {
+        // Test health toggle
+        assertTrue("Should start healthy", server.isHealthy());
+
+        server.setHealthy(false);
+        assertFalse("Should be unhealthy after setting to false", server.isHealthy());
+
+        server.setHealthy(true);
+        assertTrue("Should be healthy after setting to true", server.isHealthy());
+    }
+
+    @Test
+    public void testDualStateLogic() {
+        // Test all combinations of availability and health
+
+        // Available and healthy - should handle
+        server.setAvailable(true);
+        server.setHealthy(true);
+        assertTrue("Available + Healthy should handle requests", server.handleRequest("Test"));
+
+        // Available but unhealthy - should not handle
+        server.setAvailable(true);
+        server.setHealthy(false);
+        assertFalse("Available + Unhealthy should not handle requests", server.handleRequest("Test"));
+
+        // Unavailable but healthy - should not handle
+        server.setAvailable(false);
+        server.setHealthy(true);
+        assertFalse("Unavailable + Healthy should not handle requests", server.handleRequest("Test"));
+
+        // Unavailable and unhealthy - should not handle
+        server.setAvailable(false);
+        server.setHealthy(false);
+        assertFalse("Unavailable + Unhealthy should not handle requests", server.handleRequest("Test"));
     }
 }

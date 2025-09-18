@@ -102,7 +102,7 @@ public class L4LoadBalancer implements LoadBalancer {
      * - Non-blocking: Health checks run in background, don't delay requests
      */
     @Override
-    public void distributeRequest(String request) {
+    public boolean distributeRequest(String request) {
         // First check: Do we have any servers that can handle requests?
         // A server must be BOTH administratively available AND healthy
         if (!serverManager.hasAvailableServers()) {
@@ -112,7 +112,7 @@ public class L4LoadBalancer implements LoadBalancer {
             } else {
                 System.out.println("All servers are down! Request \"" + request + "\" could not be handled.");
             }
-            return;
+            return false;
         }
 
         // Use pluggable strategy to select the best server from available pool
@@ -122,8 +122,10 @@ public class L4LoadBalancer implements LoadBalancer {
         if (selectedServer != null) {
             // Forward the request to the selected server
             // Server handles the actual request processing
-            selectedServer.handleRequest(request);
+            return selectedServer.handleRequest(request);
         }
+
+        return false;
     }
 
     @Override
