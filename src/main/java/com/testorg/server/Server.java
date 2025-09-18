@@ -80,26 +80,34 @@ public class Server implements BackendServer {
      * It shows how administrative and health states work together to provide
      * clear operational feedback.
      *
-     * 🎯 Business Logic:
+     *  Business Logic:
      * - Only handle requests if BOTH available AND healthy
      * - Provide specific error messages for different failure modes
      * - Administrative failures take precedence in error messaging
      *
-     * 💡 Why This Matters:
+     *  Why This Matters:
      * - Operations team gets clear feedback on WHY a server isn't serving
      * - Different failure modes may require different remediation actions
      * - Helps distinguish between planned vs unplanned service interruptions
+     *
+     * Thread Safety Note:
+     * - This method is called concurrently by multiple threads
+     * - Reading server state (isAvailable, isHealthy) during concurrent updates
+     * - May see inconsistent state during transitions
      */
-    public void handleRequest(String request) {
+    public boolean handleRequest(String request) {
         // Check both states: must be available AND healthy to serve requests
         if (isAvailable && isHealthy) {
             // Success case: Server can handle the request
+
             System.out.println("Request \"" + request + "\" handled by server: " + name);
+            return true;
         } else {
             // Failure case: Determine WHY server can't handle request
             // Administrative state takes precedence for clearer operational messaging
             String reason = !isAvailable ? "is administratively down" : "failed health check";
             System.out.println("Server " + name + " " + reason + "!");
+            return false;
         }
     }
 

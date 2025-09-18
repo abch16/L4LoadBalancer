@@ -6,5 +6,5 @@ public interface BackendServer {
     void setAvailable(boolean available);
     boolean isHealthy();
     void setHealthy(boolean healthy);
-    void handleRequest(String request);
+    boolean handleRequest(String request);
 }

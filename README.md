@@ -1,8 +1,8 @@
-# L4 Load Balancer - Interview Project
+# L4 Load Balancer 
 
 ## 🛠️ Technology Assumptions
 
-While this is a 1999 scenario, we've made some forward-looking technology choices to demonstrate modern software engineering practices:
+While this is a 1999 scenario, I have made some forward-looking technology choices to demonstrate modern software engineering practices:
 
 - **Java 8**: Despite being "invented in the future," chosen for robust object-oriented design and enterprise readiness
 - **Maven**: Build automation and dependency management for scalable development
@@ -10,6 +10,33 @@ While this is a 1999 scenario, we've made some forward-looking technology choice
 - **SOLID Principles**: Clean architecture patterns for maintainable, extensible code
 
 *In 1999, we might have used C++ or early Java, but these choices better demonstrate production-ready system design.*
+
+## 🔄 Development Approach
+
+This load balancer was developed incrementally to demonstrate engineering best practices:
+
+### **Phase 1: Single-Threaded Foundation**
+- Basic round-robin algorithm with server rotation
+- Simple server availability management
+- Request simulation framework
+- Core load balancing logic
+
+### **Phase 2: Health Checking Integration**
+- Background health monitoring (5-second intervals)
+- Dual state management (administrative availability + health status)
+- Automatic failover and recovery
+- SOLID refactoring for separation of concerns
+
+### **Phase 3: Multithreading Support**
+- Demonstrated race conditions with original single-threaded code
+- Implemented thread-safe solutions using `AtomicInteger`
+- Added concurrent request processing with thread pools
+- Lock-free algorithms for high performance
+
+### **Phase 4: TCP Decision Point**
+- Evaluated full TCP socket implementation
+- Chose simulation over TCP for complexity management, testability, and scope control
+- Focus on load balancing algorithms rather than network programming details
 
 ## 🏗️ Architecture Overview
 
@@ -73,8 +100,10 @@ mvn clean compile
 # Run all tests (40 tests covering core functionality and health checking)
 mvn test
 
-# Run the interactive demo
-mvn exec:java -Dexec.mainClass="com.testorg.SingleThreadLoadBalancerApp"
+# Run the demonstration applications
+mvn exec:java -Dexec.mainClass="com.testorg.SingleThreadLoadBalancerApp"        # Single-threaded + health checking
+mvn exec:java -Dexec.mainClass="com.testorg.MultithreadedLoadBalancerApp"       # Multithreaded (shows race conditions)
+mvn exec:java -Dexec.mainClass="com.testorg.ThreadSafeLoadBalancerApp"          # Thread-safe (AtomicInteger)
 ```
 
 ### Demo Walkthrough
@@ -147,6 +176,24 @@ mvn test -Dtest=ServerManagerTest              # Server management
 - Depends on abstractions (`ServerManager`, `LoadBalancingStrategy`)
 - Not dependent on concrete implementations
 
+## 🧵 Multithreading Support
+
+The project includes both thread-unsafe and thread-safe implementations to demonstrate concurrent programming concepts:
+
+### Thread-Unsafe Version (Race Conditions)
+- Uses original `RoundRobinStrategy` with regular `int currentIndex`
+- Demonstrates race conditions when multiple threads access shared state
+- Shows uneven request distribution and counter corruption
+- Educational tool for understanding threading problems
+
+### Thread-Safe Version (AtomicInteger Solution)
+- Uses `ThreadSafeRoundRobinStrategy` with `AtomicInteger`
+- Lock-free algorithm using atomic `getAndIncrement()` operations
+- Perfect request distribution under concurrent load
+- Production-ready solution for high-throughput scenarios
+
+**Key Insight:** `AtomicInteger` provides thread safety without blocking, offering better performance than `synchronized` methods.
+
 ## 💡 Design Decisions
 
 ### Health vs Availability Separation
@@ -173,6 +220,13 @@ loadBalancer.setLoadBalancingStrategy(new RoundRobinStrategy());
 HealthCheckManager healthManager = new HealthCheckManager(serverManager, healthChecker);
 healthManager.start();  // Background thread
 ```
+
+### TCP vs Simulation Decision
+While a production Layer 4 load balancer would handle TCP connections, this implementation uses request simulation for:
+- **Complexity Management**: Focus on load balancing algorithms vs socket programming
+- **Testability**: Deterministic request objects vs network condition variability
+- **Scope Control**: Architectural demonstration without network programming complexity
+- **Implementation Clarity**: Core concepts visible without transport layer details
 
 ## 🔧 Extension Points
 
