@@ -151,17 +151,10 @@ public class MultithreadedLoadBalancerApp {
         if (raceConditionsFound) {
             System.out.println("\n RACE CONDITIONS DETECTED!");
             System.out.println("Number of race conditions found: " + raceConditionCount);
-            System.out.println(" This proves RoundRobinStrategy is NOT thread-safe");
-            System.out.println("\n What Happened:");
-            System.out.println("- Multiple threads accessed selectServer() simultaneously");
-            System.out.println("- Concurrent access to shared currentIndex variable");
-            System.out.println("- Lost updates and incorrect server selection occurred");
-            System.out.println("\n Race condition demonstration successful!");
         } else {
             System.out.println("\n NO RACE CONDITIONS DETECTED THIS RUN");
             System.out.println(" Race conditions are timing-dependent and may not occur every time");
             System.out.println(" TRY RUNNING AGAIN - Race conditions are intermittent");
-            System.out.println(" With more concurrent load, race conditions become more likely");
         }
 
         // Clean shutdown
