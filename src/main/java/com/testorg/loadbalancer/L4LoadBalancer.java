@@ -74,11 +74,6 @@ public class L4LoadBalancer implements LoadBalancer {
         serverManager.addServer(server);
     }
 
-    @Override
-    public void removeServer(BackendServer server) {
-        serverManager.removeServer(server);
-    }
-
     /**
      * Core Request Distribution Logic
      *
